@@ -1,0 +1,40 @@
+<apex:page standardController="Weather__c" extensions="CurrentWeatherExtension">
+	
+	<apex:form id="theForm">
+		<apex:pageMessages />
+		<div style="margin:auto; padding:20px;">
+			<span><apex:inputText id="inputZipCode" value="{!inputZipCode}"/></span>
+			<span><apex:commandButton action="{!getWeatherData}" value="Submit" id="buttonSubmit" reRender="theForm"/></span>
+		</div>
+		<div style="margin:auto; padding:20px;">
+			<apex:outputText id="debugOutput" value="" rendered="{!debugEnabled}">
+				{!rawOutput}
+			</apex:outputText>
+		</div>
+		<div style="margin:auto; padding:20px;">
+			<span>
+				<apex:outputText id="locationOutput" value="{!wData.currentLocation}" label="Current Location:" rendered="{!hasData}"/>
+			</span>
+			<span>
+				<apex:outputText id="zipCodeOutput" value="{!wData.currentZip}" label="Current Zip Code:" rendered="{!hasData}"/>
+			</span>
+		</div>
+		<div style="margin:auto; padding:20px;">
+			<span>
+				<apex:outputText id="tempOutput" value="{!wData.currentTemp}" label="Current Temperature:" rendered="{!hasData}"/>
+			</span>
+			<span>
+				<apex:outputText id="weatherOutput" value="{!wData.currentWeather}" label="Current Conditions:" rendered="{!hasData}"/>
+			</span>
+		</div>
+		<div style="margin:auto; padding:20px;">
+			<span>
+				<apex:outputText id="humidityOutput" value="{!wData.currentHumidity}" label="Current Humidity:" rendered="{!hasData}"/>
+			</span>
+			<span>
+				<apex:outputText id="windOutput" value="{!wData.currentWind}" label="Current Wind Conditions:" rendered="{!hasData}"/>
+			</span>
+		</div>
+	</apex:form>
+	
+</apex:page>
