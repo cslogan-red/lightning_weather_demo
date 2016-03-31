@@ -1,0 +1,179 @@
+<aura:component controller="CurrentWeatherExtension">
+    <aura:attribute name="record" type="Object" />
+    <aura:attribute name="weatherLoc" type="String" />
+    <aura:attribute name="weatherList" type="Object[]" />
+    <ltng:require styles="/resource/SLDS0121/assets/styles/salesforce-lightning-design-system.css"/>
+    <aura:handler name="init" value="{!this}" action="{!c.initPage}" />
+    <aura:registerEvent name="WeatherZipSubmitted" type="c:WeatherZipSubmitted"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
+
+    <!-- loading spinner -->
+    <div aura:id="loading_spinner" class="slds-spinner--large center_spinner">
+        <img src="/resource/SLDS0121/assets/images/spinners/slds_spinner_brand.gif" alt="Loading..." />
+    </div>
+    
+    <!-- main data body -->
+    <div aura:id="main" 
+         class="slds-theme--default slds-large-size--1-of-1 slds-small-size--1-of-1 slds-medium-size--1-of-1 slds-p-around--medium">
+        
+        <!-- main menu -->
+        <div aura:id="main_menu" class="slds-grid slds-grid--align-spread">
+            <div class="slds-col">
+                <img src="http://icons.wxug.com/logos/PNG/wundergroundLogo_4c_horz.png" 
+                     width="120" height="120"></img>
+            </div>
+            <div class="slds-col">
+                <div class="slds-dropdown-trigger">
+                    <button class="slds-button slds-button--icon-border-filled" aria-haspopup="true">
+                        <c:svg ariaHidden="true" class="slds-button__icon slds-button__icon--hint" 
+                               xlinkHref="/resource/SLDS0121/assets/icons/utility-sprite/svg/symbols.svg#rows" />
+                        <span class="slds-assistive-text">Show More</span>
+                    </button>
+                    <div class="slds-dropdown slds-dropdown--right slds-nubbin--top-right slds-dropdown--menu" 
+                         style="min-width: 22rem;">
+                        <ul class="slds-dropdown__list slds-p-around--large" role="menu">
+                            <li id="menu-0-0" class="slds-dropdown__item">
+                                <div class="slds-form-element" role="menuitem">
+                                    <div class="slds-grid">
+                                        <div class="slds-col">
+                                            <label class="slds-form-element__label form-element__label--small" 
+                                                   for="locationZipMenu">New Location Search</label>
+                                            <div class="slds-form-element__control">
+                                                <ui:inputText aura:id="locationZipMenu" class="slds-input" 
+                                                              value="{!v.weatherLoc}" placeholder="Enter Zip Code"/>
+                                            </div>
+                                        </div>
+                                        <div class="slds-align-bottom slds-col--padded">
+                                            <button id="menuSubmitButton" label="Search" 
+                                                    class="slds-button slds-button--neutral" onclick="{!c.getWeather}">Search</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li id="menu-1-1" class="slds-dropdown__item slds-has-divider--top-space">
+                                <div class="slds-grid slds-grid--align-spread slds-p-top--medium" role="menuitem">
+                                    <div class="slds-col slds-align-bottom">
+                                        <button id="menuTenDayButton" label="10 Day Outlook" 
+                                                class="slds-button slds-button--neutral" onclick="{!c.getTenDayForecast}">Ten Day Outlook</button>
+                                    </div>
+                                    <div class="slds-col slds-align-bottom">
+                                        <img src="http://icons.wxug.com/logos/PNG/wundergroundLogo_4c_horz.png" width="120" height="120"></img>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- current conditions -->
+        <div class="slds-grid slds-p-top--medium">
+            <div aura:id="current_details" class="slds-col">
+                <div class="slds-has-flexi-truncate">
+                    <img aura:id="main_data_body_img" src="{!v.record.currentWeatherImageURL}" width="50" height="50"></img>
+                    <p><ui:outputText class="slds-text-heading--medium" value="{!v.record.currentLocation}" /></p>
+                    <p><ui:outputText class="slds-text-heading--small" value="{!v.record.currentTemp}" /></p>
+                    <p><ui:outputText class="slds-text-heading--small" value="{!v.record.currentWeather}" /></p>
+                    <p><ui:outputText class="slds-text-heading--small" value="{!'Wind ' + v.record.currentWind}"/></p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- three day outlook -->
+        <span class="slds-p-horizontal--small"><h3 class="slds-text-heading--small slds-p-top--medium">3 Day Outlook</h3></span>
+        <div aura:id="three_day_forecast" class="slds-grid">
+            <aura:iteration items="{!v.weatherList}" var="obj">
+                <div class="slds-col slds-has-flexi-truncate">
+                    <p class="slds-text-body--medium"><a href="#">{!obj.title}</a></p>
+                    <div>
+                        <p><img src="{!obj.imageURL}" width="30" height="30"></img></p>
+                        <p><div class="slds-text-body--small slds-truncate">{!obj.text}</div></p>
+                    </div>
+                </div>
+            </aura:iteration>
+        </div>
+        
+        <!-- current radar component -->
+        <c:CurrentWeatherRadar aura:id="main_radar" inputZip="{!v.weatherLoc}" />
+    </div>
+    
+    <!-- ten day outlook menu & view -->
+    <div aura:id="main_ten_day_body" 
+         class="slds-theme--default slds-large-size--1-of-1 slds-small-size--1-of-1 slds-medium-size--1-of-1 slds-p-around--medium">
+        <!-- ten day menu -->
+        <div class="slds-grid slds-grid--align-spread">
+            <div class="slds-col"><img src="http://icons.wxug.com/logos/PNG/wundergroundLogo_4c_horz.png" width="120" height="120"></img></div>
+            <div class="slds-col">
+                <div class="slds-dropdown-trigger">
+                    <button class="slds-button slds-button--icon-border-filled" aria-haspopup="true">
+                        <c:svg ariaHidden="true" class="slds-button__icon slds-button__icon--hint" 
+                               xlinkHref="/resource/SLDS0121/assets/icons/utility-sprite/svg/symbols.svg#rows" />
+                        <span class="slds-assistive-text">Show More</span>
+                    </button>
+                    <div class="slds-dropdown slds-dropdown--right slds-nubbin--top-right slds-dropdown--menu" style="min-width: 22rem;">
+                        <ul class="slds-dropdown__list slds-p-around--large" role="menu">
+                            <li id="menu-0-0" class="slds-dropdown__item slds-has-divider--top-space">
+                                <div class="slds-form-element" role="menuitem">
+                                    <div class="slds-grid slds-grid--align-spread" role="menuitem">
+                                        <div class="slds-col slds-align-bottom">
+                                            <button id="menuHomeButton" label="Home" 
+                                                    class="slds-button slds-button--neutral" onclick="{!c.initPage}">Home</button>
+                                        </div>
+                                        <div class="slds-col slds-align-bottom">
+                                            <img src="http://icons.wxug.com/logos/PNG/wundergroundLogo_4c_horz.png" width="120" height="120"></img>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ten day outlook -->
+        <span class="slds-p-horizontal--small"><h3 class="slds-text-heading--small slds-p-top--small">10 Day Outlook</h3></span>
+        <aura:iteration items="{!v.weatherList}" var="obj">
+            <div class="slds-grid">
+                <div class="slds-col slds-p-around--small slds-has-divider--top-space">
+                    <div class="slds-grid slds-grid--align-spread">
+                        <div class="slds-col">
+                            <p class="slds-text-body--medium"><a href="#">{!obj.title}</a></p>
+                        </div>
+                        <div class="slds-col">
+                            <p><span class="slds-p-right--small">{!obj.imageText}</span><img src="{!obj.imageURL}" width="30" height="30"></img></p>
+                        </div>
+                    </div>
+                    <div class="slds-grid slds-grid--align-spread">
+                        <div class="slds-col">
+                            <p><div class="slds-text-body--medium">{!obj.text}</div></p>
+                        </div>
+                        <div class="slds-col">
+                            <p><div class="slds-text-body--medium">{!obj.windText}</div></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aura:iteration>
+    </div>
+    
+    <!-- main input body on firstime load -->
+    <div aura:id="main_input_body" 
+         class="slds-form slds-large-size--1-of-4 slds-small-size--1-of-3 slds-medium-size--1-of-3 slds-p-left--large slds-p-around--large" >
+        <div class="slds-form-element">
+            <label class="slds-form-element__label" for="locationZip">New Location Search</label>
+            <div class="slds-form-element__control">
+              	<ui:inputText aura:id="locationZip" class="slds-input" value="{!v.weatherLoc}" 
+                              placeholder="Enter Zip Code"/>
+            </div>
+        </div>
+        <div class="slds-p-top--large slds-p-bottom--large slds-grid">
+            <div class="slds-col">
+                <button id="formSubmitButton" label="Search" class="slds-button slds-button--neutral" onclick="{!c.getWeather}">Search</button>
+            </div>
+            <div class="slds-col slds-p-left--large">
+                <img src="http://icons.wxug.com/logos/PNG/wundergroundLogo_4c_horz.png" width="120" height="120"></img>
+            </div>
+        </div>
+    </div>
+</aura:component>

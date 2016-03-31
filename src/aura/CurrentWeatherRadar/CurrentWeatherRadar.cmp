@@ -1,0 +1,34 @@
+<aura:component controller="CurrentWeatherExtension">
+    <aura:attribute name="inputZip" type="String" />
+    <aura:attribute name="record" type="Object" />
+    <aura:attribute name="zoomLevel" type="Integer" default="1" />
+    <aura:attribute name="weatherLocZip" type="String" />
+    <ltng:require styles="/resource/SLDS0121/assets/styles/salesforce-lightning-design-system.css"/>
+    <aura:handler name="init" value="{!this}" action="{!c.initComponent}" />
+    <aura:handler event="c:WeatherZipSubmitted" action="{!c.getRadarData}" />
+    <aura:registerEvent name="RadarLoadingFinished" type="c:RadarLoadingFinished" />
+    <aura:handler name="RadarLoadingFinished" event="c:RadarLoadingFinished" action="{!c.loadingDone}" />
+	
+  	
+    <div aura:id="loading_spinner_radar" class="slds-spinner--large center_spinner">
+        <img src="/resource/SLDS0121/assets/images/spinners/slds_spinner_brand.gif" alt="Loading..." />
+    </div>
+    
+    <div aura:id="main_data_radar" class="slds-theme--default slds-p-top--x-large">
+        <div class="slds-grid slds-grid--align-center slds-p-bottom--small">
+            <div class="slds-col">
+                <div class="slds-button-group" role="group">
+                    <button class="slds-button slds-button--neutral" onclick="{!c.radarZoomOut}">Zoom Out</button>
+                    <button class="slds-button slds-button--neutral" onclick="{!c.initComponent}">Recenter</button>
+                    <button class="slds-button slds-button--neutral" onclick="{!c.radarZoomIn}">Zoom In</button>
+                </div>
+            </div>
+        </div>
+        <div class="slds-grid slds-grid--align-center">
+            <div class="slds-col">
+                <img aura:id="main_data_radar_img" src="{!v.record.currentWeatherRadarImageURL}" width="500" height="300" alt="No radar data..."></img>
+            </div>
+        </div>
+    </div>
+    
+</aura:component>

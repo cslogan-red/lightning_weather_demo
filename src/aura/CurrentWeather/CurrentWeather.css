@@ -1,0 +1,26 @@
+/* used to hide/show elements */
+.THIS.toggle {
+    display: none;
+}
+/* center loading spinner */
+.THIS.center_spinner {
+    margin: auto;
+    width: 10%;
+    padding-top: 15rem;
+}
+
+.THIS.weather_divider_bottom {
+    border-bottom: 1px solid #d8dde6;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.THIS.slds_menu_fixed {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    margin-bottom: -2.5em;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    opacity: 0%;
+}

@@ -1,0 +1,10 @@
+/* used to hide/show elements */
+.THIS.toggle_radar {
+    display: none;
+}
+/* center loading spinner */
+.THIS.center_spinner {
+    margin: auto;
+    width: 10%;
+    padding-top: 5rem;
+}
